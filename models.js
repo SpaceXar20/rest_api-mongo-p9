@@ -26,4 +26,5 @@ var CourseSchema = new Schema({
 //create the course model using using Mongoose's model()
 var Course = mongoose.model("Course", CourseSchema);
 
-//export Course model, import the Course model into the routes file
+//export Course model, require the Course model into the routes file
+module.exports.Course = Course;
