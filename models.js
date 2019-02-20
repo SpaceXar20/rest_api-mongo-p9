@@ -26,5 +26,11 @@ var CourseSchema = new Schema({
 //create the course model using using Mongoose's model()
 var Course = mongoose.model("Course", CourseSchema);
 
+//create the user model using Mongoose's model()
+var User = mongoose.model("User", UserSchema);
+
 //export Course model, require the Course model into the routes file
 module.exports.Course = Course;
+
+//export Course model, require the Course model into the routes file
+module.exports.User = User;
