@@ -5,7 +5,7 @@
 //require packages
 var mongoose = require('mongoose'), //require mongoose
  Schema = mongoose.Schema, //store schema constructor as a local variable
- bcrypt = require("bcrypt"),
+ bcrypt = require("bcryptjs"),
 SALT_WORK_FACTOR = 10;
 
 //***CREATE USER SCHEMA***
@@ -56,7 +56,7 @@ module.exports.User = User;
 
 //***CREATE COURSE SCHEMA***
 var CourseSchema = new Schema({
-  user: {type: mongoose.Schema.Types.ObjectId, ref: 'UserSchema'}, // (_id from the users collection) , I used a code snippet fom here https://stackoverflow.com/a/31538204/10043628
+  user: {type: mongoose.Schema.Types.ObjectId, default: UserSchema._id}, // (_id from the users collection) , I used a code snippet fom here https://stackoverflow.com/a/31538204/10043628
   title:{type: String, required: true},
   description: {type: String, required: true},
   estimatedTime: String,
