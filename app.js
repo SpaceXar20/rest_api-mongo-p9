@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const jsonParser = require("body-parser").json;
 const routes = require("./routes");
 const app = express(); // create the Express app
+var User = require("./models").User //require user model to test that user password matches
 
 
 // setup morgan which gives us http request logging
