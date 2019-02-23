@@ -43,7 +43,7 @@ const authenticateUser = (req, res, next) => {
     // Attempt to retrieve the user from the data store
     // by their email (i.e. the user's "key"
     // from the Authorization header).
-    const user = User.find({emailAddress: user.emailAddress}) 
+    const user = User.find({emailAddress: credentials.emailAddress}) 
       
     // If a user was successfully retrieved from the data store...
     if (user) {
