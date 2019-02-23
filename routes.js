@@ -38,8 +38,9 @@ const authenticateUser = (req, res, next) => {
   // Parse the user's credentials from the Authorization header.
   const credentials = auth(req);
 
-  // If the user's credentials are available...
+  // If the user's credentials are available from the Authorization header...
   if (credentials) {
+    console.log(credentials)
     // Attempt to retrieve the user from the data store
     // by their email (i.e. the user's "key"
     // from the Authorization header).
@@ -55,14 +56,14 @@ const authenticateUser = (req, res, next) => {
 
       // If the passwords match...
       if (authenticated) {
-        console.log(`Authentication successful for user: ${user.firstName} ${user.lastName} ${user.emailAddress}`);
+        console.log(`Authentication successful for user: ${credentials.name} `);
 
         // Then store the retrieved user object on the request object
         // so any middleware functions that follow this middleware function
         // will have access to the user's information.
         req.currentUser = user;
       } else {
-        message = `Authentication failure for user: ${user.firstName} ${user.lastName} with email of ${user.emailAddress}`;
+        message = `Authentication failure for user:  ${credentials.name} `;
       }
     } else {
       message = `User not found for email: ${credentials.name}`;
@@ -96,8 +97,8 @@ router.get('/users', authenticateUser, (req, res) => {
   const user = req.currentUser;
 //we use the Response object's json() method to return the current user's information formatted as JSON:
   res.json({
-    firstName: user.firstName,
-    lastName: user.lastName,
+    firstName: user.firstName
+    
   });
 });
 
