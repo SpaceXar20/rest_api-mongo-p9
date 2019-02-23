@@ -28,9 +28,7 @@ router.param("id", function(req,res,next,id){
 });
 
 
-// This array is used to keep track of user records
-// as they are created.
-const users = [];
+
 
 
 //This middle-where function will authenticate users
@@ -45,7 +43,7 @@ const authenticateUser = (req, res, next) => {
     // Attempt to retrieve the user from the data store
     // by their email (i.e. the user's "key"
     // from the Authorization header).
-    const user = users.find(u => u.username === credentials.emailAddress);
+    const user = User.find({'emailAddress': credentials.name, user.emailAddress} );
 
     // If a user was successfully retrieved from the data store...
     if (user) {
@@ -67,7 +65,7 @@ const authenticateUser = (req, res, next) => {
         message = `Authentication failure for user: ${user.firstName} ${user.lastName} with email of ${user.emailAddress}`;
       }
     } else {
-      message = `User not found for email: ${credentials.emailAddress}`;
+      message = `User not found for email: ${credentials.name}`;
     }
   } else {
     message = 'Auth header not found';
@@ -109,8 +107,8 @@ router.get('/users', authenticateUser, (req, res) => {
 router.post('/users',  (req, res, next) => {
   var user = new User(req.body); //create a new user document, and grab data for the user on request.body
   // Add the user to the `users` array.
-  users.push(user);
-  user.save((err) => { //call save() on user to saved it to the database and pass a callback function
+
+  User.save(user, (err) => { //call save() on user to saved it to the database and pass a callback function
     if(err) return next(err); 
     res.location("/api/users"); //set location header
     res.status(201); //respond with a 201 code to indicate to the client that a document was saved successfully
