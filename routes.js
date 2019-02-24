@@ -48,12 +48,13 @@ const authenticateUser = async (req, res, next) =>{
     const user = await User.find({emailAddress: credentials.name})[0];
      
     // If a user was successfully retrieved from the data store...
+    console.log(credentials.pass)
+    console.log(user.password)
     if (user) {
       // Use the bcryptjs npm package to compare the user's password typed
       // (from the Authorization header) to the user's password sent in req.body in postman
       const authenticated = bcryptjs
-      console.log(typeof credentials.pass)
-      console.log(typeof user.password)
+     
       .compareSync(credentials.pass, user.password);
       // If the passwords match...
       if (authenticated) {
