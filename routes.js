@@ -38,31 +38,30 @@ const authenticateUser = (req, res, next) => {
   // Parse the user's credentials from the Authorization header.
   const credentials = auth(req);
 
-  // If the user's credentials are available from the Authorization header...
+  // If the user typed the Authorization header...
   if (credentials) {
     console.log(credentials)
     // Attempt to retrieve the user from the data store
     // by their email (i.e. the user's "key"
     // from the Authorization header).
     const user = User.find({emailAddress: credentials.name}) 
-      console.log(user)
+     
     // If a user was successfully retrieved from the data store...
     if (user) {
-      // Use the bcryptjs npm package to compare the user's password
-      // (from the Authorization header) to the user's password
-      // that was retrieved from the data store.
+      // Use the bcryptjs npm package to compare the user's password typed
+      // (from the Authorization header) to the user's password sent in req.body in postman
       const authenticated = bcryptjs
-        .compareSync(credentials.pass, user.password);
+        .compareSync(credentials.pass, req.body.password);
       // If the passwords match...
       if (authenticated) {
-        console.log(`Authentication successful for user: ${user.firstName} `);
+        console.log(`Authentication successful for user: ${req.body.firstName} `);
 
         // Then store the retrieved user object on the request object
         // so any middleware functions that follow this middleware function
         // will have access to the user's information.
         req.currentUser = user;
       } else {
-        message = `Authentication failure for user:  ${user.firstName} `;
+        message = `Authentication failure for user:  ${req.body.firstName} `;
       }
     } else {
       message = `User not found for email: ${credentials.name}`;
@@ -90,7 +89,7 @@ const authenticateUser = (req, res, next) => {
 
 
 //GET /api/users 200, THIS WORKS IN POSTMAN
-//This Route returns the currently authenticated user,     
+//This Route returns the currently authenticated user
 router.get('/users', authenticateUser, (req, res) => {
   //within the route handler, the current authenticated user's information is retrieved from the Request object's currentUser property:
   const user = req.currentUser;
@@ -108,7 +107,7 @@ router.post('/users',  (req, res, next) => {
   var user = new User(req.body); //create a new user document, and grab data for the user on request.body
   // Add the user to the `users` array.
 
-  User.save(user, (err) => { //call save() on user to saved it to the database and pass a callback function
+  user.save(user, (err) => { //call save() on user to saved it to the database and pass a callback function
     if(err) return next(err); 
     res.location("/api/users"); //set location header
     res.status(201); //respond with a 201 code to indicate to the client that a document was saved successfully
@@ -156,7 +155,7 @@ router.post("/courses", authenticateUser, (req, res, next) => {
 //PUT /api/courses/:id 204, I tested with a course I created and call it web design, so it works on postman   
 //This course  updates a course and returns no content
 router.put("/courses/:id", authenticateUser, (req, res, next) => { //the param on line 12 pre-loads the course ID, allowing me to use it in this route 
-  req.course.update(req.body, function(err){ //the update object will contain the properties and values we want to modify, which is req.body
+  req.course.update(req.body, (err) => { //the update object will contain the properties and values we want to modify, which is req.body
     if(err) return next(err);
     res.status(204);
 		res.json(); //send the results in question document to the client
