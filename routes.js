@@ -11,6 +11,7 @@ var Course = require("./models").Course
 var User = require("./models").User
 
 
+
 /*param () takes two parameters, name of route parameter  as a string and a callback
 function, the callback will be executed when (id) is present,
 the  id parameter takes a value from id*/
@@ -51,7 +52,7 @@ const authenticateUser = (req, res, next) => {
       // Use the bcryptjs npm package to compare the user's password typed
       // (from the Authorization header) to the user's password sent in req.body in postman
       const authenticated = bcryptjs
-        .compareSync(credentials.pass, req.body.password);
+      .compareSync(credentials.pass, user.password);
       // If the passwords match...
       if (authenticated) {
         console.log(`Authentication successful for user: ${req.body.firstName} `);
@@ -105,8 +106,8 @@ router.get('/users', authenticateUser, (req, res) => {
 //This Route creates a user, sets the Location header to "/", and returns no content
 router.post('/users',  (req, res, next) => {
   var user = new User(req.body); //create a new user document, and grab data for the user on request.body
-  // Add the user to the `users` array.
-
+  // Hash the new user
+  user.password = bcryptjs.hashSync(user.password);
   user.save(user, (err) => { //call save() on user to saved it to the database and pass a callback function
     if(err) return next(err); 
     res.location("/api/users"); //set location header
