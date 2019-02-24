@@ -33,7 +33,7 @@ router.param("id", function(req,res,next,id){
 
 
 //This middle-where function will authenticate users
-const authenticateUser = (req, res, next) => {
+const authenticateUser = async (req, res, next) =>{
   let message = null;
 
   // Parse the user's credentials from the Authorization header.
@@ -45,13 +45,15 @@ const authenticateUser = (req, res, next) => {
     // Attempt to retrieve the user from the data store
     // by their email (i.e. the user's "key"
     // from the Authorization header).
-    const user = User.find({emailAddress: credentials.name}) 
+    const user = await User.find({emailAddress: credentials.name})[0];
      
     // If a user was successfully retrieved from the data store...
     if (user) {
       // Use the bcryptjs npm package to compare the user's password typed
       // (from the Authorization header) to the user's password sent in req.body in postman
       const authenticated = bcryptjs
+      console.log(typeof credentials.pass)
+      console.log(typeof user.password)
       .compareSync(credentials.pass, user.password);
       // If the passwords match...
       if (authenticated) {
