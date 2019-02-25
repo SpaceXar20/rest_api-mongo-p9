@@ -45,7 +45,7 @@ const authenticateUser = async (req, res, next) =>{
     // Attempt to retrieve the user from the data store
     // by their email (i.e. the user's "key"
     // from the Authorization header).
-    const user = await User.find({emailAddress: credentials.name})[0];
+    const user = await User.findOne({emailAddress: credentials.name});
      
     // If a user was successfully retrieved from the data store...
     console.log(credentials.pass)
@@ -58,14 +58,14 @@ const authenticateUser = async (req, res, next) =>{
       .compareSync(credentials.pass, user.password);
       // If the passwords match...
       if (authenticated) {
-        console.log(`Authentication successful for user: ${req.body.firstName} `);
+        console.log(`Authentication successful for user: ${user.firstName} ${user.lastName}`);
 
         // Then store the retrieved user object on the request object
         // so any middleware functions that follow this middleware function
         // will have access to the user's information.
         req.currentUser = user;
       } else {
-        message = `Authentication failure for user:  ${req.body.firstName} `;
+        message = `Authentication failure for user:  ${user.firstName} ${user.lastName}`;
       }
     } else {
       message = `User not found for email: ${credentials.name}`;
@@ -95,12 +95,14 @@ const authenticateUser = async (req, res, next) =>{
 //GET /api/users 200, THIS WORKS IN POSTMAN
 //This Route returns the currently authenticated user
 router.get('/users', authenticateUser, (req, res) => {
-  //within the route handler, the current authenticated user's information is retrieved from the Request object's currentUser property:
+  //within the route handler, the current authenticated user's information is retrieved from the Request object's currentUser property on line 68:
   const user = req.currentUser;
 //we use the Response object's json() method to return the current user's information formatted as JSON:
   res.json({
-    firstName: user.firstName
-    
+    firstName: user.firstName,
+    lastName:  user.lastName,
+    emailAddress: user.emailAddress,
+    password: user.password 
   });
 });
 
