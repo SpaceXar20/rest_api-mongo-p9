@@ -154,7 +154,7 @@ router.post('/users', [
 //GET /api/courses 200, THIS WORKS IN POSTMAN
 //This Route returns a list of courses (including the user that owns each course)
   router.get('/courses',  (req, res, next) => {
-    Course.find({}) // call the find() on Course model to get all results
+    Course.find({})  // call the find() on Course model to get all results
           .populate('user')
           .exec((err, courses) => { //call exec() on the builder and pass in a callback function into it
             if(err) return next(err); //this handles any errors that may result from executing the query, by using next() and hand it to express's error handler 
