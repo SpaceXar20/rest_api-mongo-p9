@@ -1,6 +1,7 @@
 'use strict';
 
 //Require packages
+const { check, validationResult } = require('express-validator/check');
 const bcryptjs = require('bcryptjs');
 var express = require("express");
 var router = express.Router();
@@ -15,9 +16,8 @@ var User = require("./models").User
 /*param () takes two parameters, name of route parameter  as a string and a callback
 function, the callback will be executed when (id) is present,
 the  id parameter takes a value from id*/
-router.param("id", function(req,res,next,id){ 
-	Course.findById(id, function(err, doc){ //load the course document by id
-		if(err) return next(err); //if there is an error, pass it to the error handler
+router.param("id", (req,res,next,id) => { 
+	Course.findById(id, (err, doc) => { //load the course document by id
 		if(!doc) { //if the document can't be found, return a 404 error to the client  
 			err = new Error("Not Found");
 			err.status = 404; //set status property on error object
@@ -109,7 +109,33 @@ router.get('/users', authenticateUser, (req, res) => {
 
 //POST /api/users 201, THIS WORKS IN POSTMAN   
 //This Route creates a user, sets the Location header to "/", and returns no content
-router.post('/users',  (req, res, next) => {
+router.post('/users', [
+  //Validate if the user included all required fields and that none are left blank
+  check('firstName')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "firstName"'),
+  check('lastName')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "lastName"'),
+  check('emailAddress')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "emailAddress"'),
+    check('password')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "password"'),
+], (req, res, next) => {
+  // Attempt to get the validation result from the Request object.
+  const errors = validationResult(req);
+
+  // If there are validation errors...
+  if (!errors.isEmpty()) {
+    // Use the Array `map()` method to get a list of error messages.
+    const errorMessages = errors.array().map(error => error.msg);
+
+    // Return the validation errors to the client.
+    return res.status(400).json({ errors: errorMessages });
+  }
+  //Create a new user document
   var user = new User(req.body); //create a new user document, and grab data for the user on request.body
   // Hash the new user
   user.password = bcryptjs.hashSync(user.password);
@@ -129,6 +155,7 @@ router.post('/users',  (req, res, next) => {
 //This Route returns a list of courses (including the user that owns each course)
   router.get('/courses',  (req, res, next) => {
     Course.find({}) // call the find() on Course model to get all results
+          .populate('user')
           .exec((err, courses) => { //call exec() on the builder and pass in a callback function into it
             if(err) return next(err); //this handles any errors that may result from executing the query, by using next() and hand it to express's error handler 
             res.json(courses);//if there are no errors, we can send results to client's request
@@ -146,7 +173,28 @@ router.get('/courses/:id',  (req, res,next) => {
 
 //POST /api/courses 201, THIS WORKS IN POSTMAN
 //This Route creates a course, sets the Location header to the URI for the course, and returns no content
-router.post("/courses", authenticateUser, (req, res, next) => {
+router.post("/courses", authenticateUser,  [
+  //Validate if the user included all required fields and that none are left blank
+  check('title')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "title"'),
+  check('description')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "description"'),
+ ], (req, res, next) => {
+
+   // Attempt to get the validation result from the Request object.
+  const errors = validationResult(req);
+
+  // If there are validation errors...
+  if (!errors.isEmpty()) {
+    // Use the Array `map()` method to get a list of error messages.
+    const errorMessages = errors.array().map(error => error.msg);
+
+    // Return the validation errors to the client.
+    return res.status(400).json({ errors: errorMessages });
+  }
+  //Create a new course document
 	var course = new Course(req.body); //create a new course document from incoming json on the request.body
 	course.save(function(err){ //call save() on course var and pass a callback function
     if(err) return next(err);
@@ -160,7 +208,28 @@ router.post("/courses", authenticateUser, (req, res, next) => {
 
 //PUT /api/courses/:id 204, I tested with a course I created and call it web design, so it works on postman   
 //This course  updates a course and returns no content
-router.put("/courses/:id", authenticateUser, (req, res, next) => { //the param on line 12 pre-loads the course ID, allowing me to use it in this route 
+router.put("/courses/:id", authenticateUser, [
+  //Validate if the user included all required fields and that none are left blank
+  check('title')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "title"'),
+  check('description')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "description"'),
+  
+], (req, res, next) => { //the param on line 12 pre-loads the course ID, allowing me to use it in this route
+  
+  // Attempt to get the validation result from the Request object.
+  const errors = validationResult(req);
+
+  // If there are validation errors...
+  if (!errors.isEmpty()) {
+    // Use the Array `map()` method to get a list of error messages.
+    const errorMessages = errors.array().map(error => error.msg);
+
+    // Return the validation errors to the client.
+    return res.status(400).json({ errors: errorMessages });
+  }
   req.course.update(req.body, (err) => { //the update object will contain the properties and values we want to modify, which is req.body
     if(err) return next(err);
     res.status(204);
