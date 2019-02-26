@@ -8,10 +8,10 @@ var mongoose = require('mongoose'), //require mongoose
 
 //***CREATE USER SCHEMA***
 var UserSchema = new Schema({
-  firstName: { type: String, required: true }, //require makes it so that the fields can't be left blank
-  lastName: {type: String, required: true},
-  emailAddress: {type: String, required: true},
-  password: {type: String, required: true},     
+  firstName: String, 
+  lastName: String,
+  emailAddress: String,
+  password:  String  
 });
 
 
@@ -19,8 +19,8 @@ var UserSchema = new Schema({
 //***CREATE COURSE SCHEMA***
 var CourseSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User'}, // (_id from the users collection) by using population
-  title: {type: String, required: true},
-  description: {type: String, required: true},
+  title: String, 
+  description: String, 
   estimatedTime: String,
   materialsNeeded: String
 });
