@@ -93,13 +93,14 @@ const authenticateUser = async (req, res, next) =>{
 //---USER ROUTES
 
 
-//GET /api/users 200, THIS WORKS IN POSTMAN
+//GET /api/users 200, 
 //This Route returns the currently authenticated user
 router.get('/users', authenticateUser, (req, res) => {
-  //within the route handler, the current authenticated user's information is retrieved from the Request object's currentUser property on line 68:
+  // the current authenticated user's information is retrieved from the Request object's currentUser property from authenticateUser function
   const user = req.currentUser;
 //we use the Response object's json() method to return the current user's information formatted as JSON:
   res.json({
+    user_id: user._id,
     firstName: user.firstName,
     lastName:  user.lastName,
     emailAddress: user.emailAddress,
@@ -108,7 +109,7 @@ router.get('/users', authenticateUser, (req, res) => {
 });
 
 
-//POST /api/users 201, THIS WORKS IN POSTMAN   
+//POST /api/users 201, 
 //This Route creates a user, sets the Location header to "/", and returns no content
 router.post('/users', [
   //Validate if the user included all required fields and that none are left blank
@@ -152,7 +153,7 @@ router.post('/users', [
 //---COURSE ROUTES
 
 
-//GET /api/courses 200, THIS WORKS IN POSTMAN
+//GET /api/courses 200, 
 //This Route returns a list of courses (including the user that owns each course)
   router.get('/courses',  (req, res, next) => {
     Course.find({})  // call the find() on Course model to get all results
@@ -164,7 +165,7 @@ router.post('/users', [
 });
 
 
-//GET /api/courses/:id 200, THIS WORKS IN POSTMAN
+//GET /api/courses/:id 200, 
 //This Route returns a course (including the user that owns the course) for the provided course ID
 router.get('/courses/:id',  (req, res,next) => {
  res.json(req.course);
@@ -172,7 +173,7 @@ router.get('/courses/:id',  (req, res,next) => {
 
 
 
-//POST /api/courses 201, THIS WORKS IN POSTMAN
+//POST /api/courses 201, 
 //This Route creates a course, sets the Location header to the URI for the course, and returns no content
 router.post("/courses", authenticateUser,  [
   //Validate if the user included all required fields and that none are left blank
@@ -195,9 +196,13 @@ router.post("/courses", authenticateUser,  [
     // Return the validation errors to the client.
     return res.status(400).json({ errors: errorMessages });
   }
-  //Create a new course document
-	var course = new Course({ //create a new course document from incoming json on the request.body
-    user: mongoose.Types.ObjectId(),
+ 
+  // the current authenticated user's information is retrieved from the Request object's currentUser property from authenticateUser function
+  const user = req.currentUser;
+  var course = new Course({ //create a new course document from incoming json on the request.body
+    
+    
+    user: user._id,
     title: req.body.title,
     description: req.body.description,
     estimatedTime: req.body.estimatedTime,
@@ -213,7 +218,7 @@ router.post("/courses", authenticateUser,  [
 
 
 
-//PUT /api/courses/:id 204, I tested with a course I created and call it web design, so it works on postman   
+//PUT /api/courses/:id 204, 
 //This course  updates a course and returns no content
 router.put("/courses/:id", authenticateUser, [
   //Validate if the user included all required fields and that none are left blank
@@ -246,7 +251,7 @@ router.put("/courses/:id", authenticateUser, [
 
 
 
-//DELETE /api/courses/:id 204 , I created some courses and I was able to delete many of them, this works
+//DELETE /api/courses/:id 204 , 
 // This route deletes a course and returns no content
 router.delete("/courses/:id", authenticateUser, (req, res, next) => {
   req.course.remove(function(err){ //use mongoose's remove method on the req.course
